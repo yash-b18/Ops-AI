@@ -5,7 +5,6 @@
 **Symptoms:**
 ```
 ModuleNotFoundError: No module named 'requests'
-ModuleNotFoundError: No module named 'joblib'
 ModuleNotFoundError: No module named 'lightgbm'
 ```
 
@@ -15,7 +14,7 @@ ModuleNotFoundError: No module named 'lightgbm'
 ```bash
 # Verify requirements.txt has these essential packages:
 # - fastapi, uvicorn, pandas, pyarrow, numpy
-# - lightgbm, requests, joblib
+# - lightgbm, requests
 
 # Rebuild Docker image
 docker build -f week2/starter/Dockerfile -t demand-api:v2 .
@@ -145,13 +144,13 @@ kubectl logs <pod-name>
 2. Verify GCS files exist:
 ```bash
 gsutil ls -lh gs://ops-ai-[YOUR-NAME]-data/
-# Should list: demand_api_model.joblib, demand_enriched.parquet
+# Should list: lgbm_demand_model.txt, demand_enriched.parquet
 ```
 
 3. Check data.py paths are correct:
 ```python
 # In week2/backend/data.py, should have:
-MODEL_PATH = _ROOT / "data" / "processed" / "demand_api_model.joblib"
+MODEL_PATH = _ROOT / "data" / "processed" / "lgbm_demand_model.txt"
 DATA_PATH = _ROOT / "data" / "processed" / "demand_enriched.parquet"
 LOOKUP_PATH = _ROOT / "metadata" / "Lookups" / "taxi_zone_lookup.csv"
 ```

@@ -9,7 +9,7 @@ Do these in order.
   ```bash
   ls week2/metadata/Lookups/taxi_zone_lookup.csv
   ls week2/data/demand_enriched.parquet
-  ls week2/model/demand_api_model.joblib
+  ls week2/model/lgbm_demand_model.txt
   ```
 - [ ] Test Docker build:
 
@@ -25,7 +25,7 @@ Do these in order.
   ```bash
   docker run --rm -p 8000:8000 \
       -v "$(pwd)/week2/data/demand_enriched.parquet:/data/processed/demand_enriched.parquet:ro" \
-      -v "$(pwd)/week2/model/demand_api_model.joblib:/data/processed/demand_api_model.joblib:ro" \
+      -v "$(pwd)/week2/model/lgbm_demand_model.txt:/data/processed/lgbm_demand_model.txt:ro" \
       -v "$(pwd)/week2/backend/zone_hour_avg_fare.parquet:/data/processed/zone_hour_avg_fare.parquet:ro" \
       -v "$(pwd)/week2/backend/taxi_zones.geojson:/app/frontend/public/taxi_zones.geojson:ro" \
       demand-api:test
@@ -35,7 +35,7 @@ Do these in order.
   ```bash
   docker run --rm -p 8000:8000 `
       -v "${PWD}\week2\data\demand_enriched.parquet:/data/processed/demand_enriched.parquet:ro" `
-      -v "${PWD}\week2\model\demand_api_model.joblib:/data/processed/demand_api_model.joblib:ro" `
+      -v "${PWD}\week2\model\lgbm_demand_model.txt:/data/processed/lgbm_demand_model.txt:ro" `
       -v "${PWD}\week2\backend\zone_hour_avg_fare.parquet:/data/processed/zone_hour_avg_fare.parquet:ro" `
       -v "${PWD}\week2\backend\taxi_zones.geojson:/app/frontend/public/taxi_zones.geojson:ro" `
       demand-api:test
@@ -69,7 +69,7 @@ Do these in order.
   ```bashe
   gsutil mb gs://ops-ai-[YOUR-NAME]-data
   gsutil cp week2/data/demand_enriched.parquet gs://ops-ai-[YOUR-NAME]-data/
-  gsutil cp week2/model/demand_api_model.joblib gs://ops-ai-[YOUR-NAME]-data/
+  gsutil cp week2/model/lgbm_demand_model.txt gs://ops-ai-[YOUR-NAME]-data/
   gsutil cp week2/backend/zone_hour_avg_fare.parquet gs://ops-ai-[YOUR-NAME]-data/
   gsutil cp week2/backend/taxi_zones.geojson gs://ops-ai-[YOUR-NAME]-data/
   ```

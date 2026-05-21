@@ -35,8 +35,10 @@ spec:
           - /bin/sh
           - -c
           - |
+            # Authenticate using service account key
+            gcloud auth activate-service-account --key-file=/var/secrets/gcs/key.json
             gsutil cp gs://${GCS_BUCKET}/demand_enriched.parquet /data/processed/
-            gsutil cp gs://${GCS_BUCKET}/demand_api_model.joblib /data/processed/
+            gsutil cp gs://${GCS_BUCKET}/lgbm_demand_model.txt /data/processed/
             gsutil cp gs://${GCS_BUCKET}/zone_hour_avg_fare.parquet /data/processed/
             gsutil cp gs://${GCS_BUCKET}/taxi_zones.geojson /data/processed/
         env:
@@ -48,10 +50,13 @@ spec:
         volumeMounts:
         - name: data
           mountPath: /data/processed
+        - name: gcs-sa-key
+          mountPath: /var/secrets/gcs
+          readOnly: true
 
       containers:
       - name: demand-api
-        image: us-central1-docker.pkg.dev/[YOUR-NAME]/docker-repo/demand-api:latest
+        image: us-central1-docker.pkg.dev/ops-ai-[YOUR-NAME]/docker-repo/demand-api:latest
         imagePullPolicy: TODO
         ports:
         - containerPort: 8000
@@ -91,3 +96,6 @@ spec:
       volumes:
       - name: data
         emptyDir: {}
+      - name: gcs-sa-key
+        secret:
+          secretName: gcs-sa-key  # Created in Part 2 Step 1b (see README)

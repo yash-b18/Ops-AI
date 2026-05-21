@@ -55,7 +55,7 @@ See **Week 2 README Part 0** for full GCP setup instructions.
 
 Pre-loaded in this repo:
 - `week2/data/demand_enriched.parquet` — training data
-- `week2/model/demand_api_model.joblib` — pre-trained model
+- `week2/model/lgbm_demand_model.txt` — pre-trained LightGBM model
 
 You upload these to your GCS bucket during Part 0 setup.
 
