@@ -9,13 +9,22 @@ __pycache__/
 *.py[cod]
 *$py.class
 .pytest_cache/
-.env
 venv/
+.venv/
+.ipynb_checkpoints/
 
-# GCP credentials (NEVER commit)
+# Environment variables
+.env
+.env.*
+
+# GCP credentials / secrets
 key.json
-*.json.secret
 credentials.json
+application_default_credentials.json
+service-account.json
+*.json.secret
+*gcp-key*.json
+*service-account*.json
 
 # OS
 .DS_Store
@@ -23,3 +32,4 @@ Thumbs.db
 
 # Logs
 *.log
+key.json
