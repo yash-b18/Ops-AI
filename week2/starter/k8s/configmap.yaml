@@ -12,4 +12,4 @@ data:
   # GCS bucket containing the model and data files
   # MUST match the bucket you created in Part 0 (without gs://)
   # Example: "ops-ai-alice-data" (replace [YOUR-NAME] with your actual suffix)
-  GCS_BUCKET: "ops-ai-[YOUR-NAME]-data"
+  GCS_BUCKET: "ops-ai-496923-data"

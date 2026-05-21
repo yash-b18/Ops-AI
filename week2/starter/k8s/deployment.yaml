@@ -6,13 +6,13 @@ metadata:
     app: demand-api
 
 spec:
-  replicas: TODO
+  replicas: 2
 
   strategy:
     type: RollingUpdate
     rollingUpdate:
-      maxSurge: TODO
-      maxUnavailable: TODO
+      maxSurge: 1
+      maxUnavailable: 1
 
   selector:
     matchLabels:
@@ -26,76 +26,76 @@ spec:
       # Authentication for pulling images from Artifact Registry
       # You must create this secret (see README Part 2)
       imagePullSecrets:
-      - name: artifact-registry-secret
+        - name: artifact-registry-secret
 
       initContainers:
-      - name: download-data
-        image: google/cloud-sdk:slim
-        command:
-          - /bin/sh
-          - -c
-          - |
-            # Authenticate using service account key
-            gcloud auth activate-service-account --key-file=/var/secrets/gcs/key.json
-            gsutil cp gs://${GCS_BUCKET}/demand_enriched.parquet /data/processed/
-            gsutil cp gs://${GCS_BUCKET}/lgbm_demand_model.txt /data/processed/
-            gsutil cp gs://${GCS_BUCKET}/zone_hour_avg_fare.parquet /data/processed/
-            gsutil cp gs://${GCS_BUCKET}/taxi_zones.geojson /data/processed/
-        env:
-        - name: GCS_BUCKET
-          valueFrom:
-            configMapKeyRef:
-              name: demand-api-config
-              key: GCS_BUCKET
-        volumeMounts:
-        - name: data
-          mountPath: /data/processed
-        - name: gcs-sa-key
-          mountPath: /var/secrets/gcs
-          readOnly: true
+        - name: download-data
+          image: google/cloud-sdk:slim
+          command:
+            - /bin/sh
+            - -c
+            - |
+              # Authenticate using service account key
+              gcloud auth activate-service-account --key-file=/var/secrets/gcs/key.json
+              gsutil cp gs://${GCS_BUCKET}/demand_enriched.parquet /data/processed/
+              gsutil cp gs://${GCS_BUCKET}/lgbm_demand_model.txt /data/processed/
+              gsutil cp gs://${GCS_BUCKET}/zone_hour_avg_fare.parquet /data/processed/
+              gsutil cp gs://${GCS_BUCKET}/taxi_zones.geojson /data/processed/
+          env:
+            - name: GCS_BUCKET
+              valueFrom:
+                configMapKeyRef:
+                  name: demand-api-config
+                  key: GCS_BUCKET
+          volumeMounts:
+            - name: data
+              mountPath: /data/processed
+            - name: gcs-sa-key
+              mountPath: /var/secrets/gcs
+              readOnly: true
 
       containers:
-      - name: demand-api
-        image: us-central1-docker.pkg.dev/ops-ai-[YOUR-NAME]/docker-repo/demand-api:latest
-        imagePullPolicy: TODO
-        ports:
-        - containerPort: 8000
-        env:
-        - name: GCS_BUCKET
-          valueFrom:
-            configMapKeyRef:
-              name: demand-api-config
-              key: GCS_BUCKET
-        resources:
-          requests:
-            cpu: TODO
-            memory: TODO
-          limits:
-            cpu: TODO
-            memory: TODO
-        readinessProbe:
-          httpGet:
-            path: /health
-            port: 8000
-          initialDelaySeconds: TODO
-          periodSeconds: TODO
-          failureThreshold: TODO
-        livenessProbe:
-          httpGet:
-            path: /health
-            port: 8000
-          initialDelaySeconds: TODO
-          periodSeconds: TODO
-          failureThreshold: TODO
+        - name: demand-api
+          image: us-central1-docker.pkg.dev/ops-ai-496923/docker-repo/demand-api:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8000
+          env:
+            - name: GCS_BUCKET
+              valueFrom:
+                configMapKeyRef:
+                  name: demand-api-config
+                  key: GCS_BUCKET
+          resources:
+            requests:
+              cpu: 512m
+              memory: 1Gi
+            limits:
+              cpu: 1000m
+              memory: 3Gi
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 60
+            periodSeconds: 20
+            failureThreshold: 3
 
-        volumeMounts:
-        - name: data
-          mountPath: /data/processed
+          volumeMounts:
+            - name: data
+              mountPath: /data/processed
 
       # Shared volume for init container + main container
       volumes:
-      - name: data
-        emptyDir: {}
-      - name: gcs-sa-key
-        secret:
-          secretName: gcs-sa-key  # Created in Part 2 Step 1b (see README)
+        - name: data
+          emptyDir: {}
+        - name: gcs-sa-key
+          secret:
+            secretName: gcs-sa-key # Created in Part 2 Step 1b (see README)
