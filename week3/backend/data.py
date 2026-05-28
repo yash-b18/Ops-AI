@@ -11,11 +11,27 @@ from datetime import datetime, timedelta
 import json
 import requests
 from functools import lru_cache
+import logging
+
+try:
+    from validation.check_data_quality import DataQualityValidator
+except ImportError as _validation_import_err:
+    DataQualityValidator = None  # type: ignore[assignment]
 
 _ROOT = Path(__file__).parent.parent.parent
 DATA_PATH = _ROOT / "week2" / "data" / "processed" / "demand_enriched.parquet"
 LOOKUP_PATH = _ROOT / "week2" / "metadata" / "Lookups" / "taxi_zone_lookup.csv"
 MODEL_PATH = _ROOT / "week2" / "data" / "processed" / "lgbm_demand_model.txt"
+CORRUPTED_DATA_PATH = _ROOT / "week3" / "data" / "demand_enriched_corrupted.parquet"
+
+logger = logging.getLogger(__name__)
+
+_SEVERITY_TO_LOG = {
+    "critical": logger.error,
+    "high":     logger.warning,
+    "medium":   logger.info,
+    "low":      logger.info,
+}
 
 # Fixed reference point: end of 2nd week in Feb 2026 (the latest complete month)
 # Data before this date is actual; from this point forward uses model predictions
@@ -360,6 +376,60 @@ def _compute_zone_unmet_demand_baseline():
 
 
 _zone_unmet_baselines = _compute_zone_unmet_demand_baseline()
+
+
+def check_and_log_data_quality() -> None:
+    """Run data-quality validation on the upstream corrupted parquet and log
+    findings at the appropriate severity. Never raises; problems are surfaced
+    via logs only. Called at startup so operators see data quality status
+    before the first request lands.
+    """
+    if DataQualityValidator is None:
+        logger.warning(
+            "Data quality check skipped: validation package not importable "
+            f"({_validation_import_err}). Verify 'validation' is on sys.path."
+        )
+        return
+
+    if not CORRUPTED_DATA_PATH.exists():
+        logger.info(
+            f"Data quality check skipped: {CORRUPTED_DATA_PATH} not present "
+            "(OK in environments without the corrupted data file)."
+        )
+        return
+
+    try:
+        df = pd.read_parquet(CORRUPTED_DATA_PATH)
+        baseline_cutoff = pd.Timestamp("2026-01-16")
+        baseline = df[df["time_bucket"] < baseline_cutoff]
+        corrupt = df[df["time_bucket"] >= baseline_cutoff]
+        result = DataQualityValidator(baseline_df=baseline).validate(corrupt)
+    except Exception as e:
+        logger.error(f"Data quality check failed to run: {e}")
+        return
+
+    if result["is_valid"]:
+        logger.info(
+            f"Data quality check passed: {result['evaluation_rows']:,} rows checked, "
+            "no issues at severity >= critical."
+        )
+        return
+
+    counts = result["issues_by_severity"]
+    summary = ", ".join(f"{n} {k}" for k, n in counts.items() if n) or "none"
+    logger.warning(
+        f"Data quality issues detected: {result['total_issues']} issue(s) "
+        f"({summary}) in {result['evaluation_rows']:,} rows."
+    )
+    for issue in result["issues"]:
+        log_fn = _SEVERITY_TO_LOG.get(issue["severity"], logger.warning)
+        log_fn(
+            f"  [{issue['severity'].upper():8s}] {issue['type']}: "
+            f"{issue['description']}"
+        )
+
+
+check_and_log_data_quality()
 
 
 # ── Synthetic Live Data Generation ──────────────────────────────────────────

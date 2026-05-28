@@ -2,7 +2,7 @@ name: Data Quality Check
 
 on:
   schedule:
-    - cron: '0 * * * *'  # TODO: Choose your frequency (15min? hourly? daily?)
+    - cron: '0 * * * *'  # Hourly: ~1h MTTD target for operational ML; trades CI minutes for detection latency
   push:
     branches: [main]
     paths:
@@ -27,14 +27,71 @@ jobs:
 
       - name: Run data quality validation
         id: validate
+        working-directory: week3
         run: |
-          cd week3
-          # TODO: Implement this
-          # - Load and split the corrupted parquet (pre/post Jan 16)
-          # - Run your validation checks
-          # - Report findings
-          # - Exit with error if validation fails
-          python3 -m validation.check_data_quality
+          python -m validation.check_data_quality \
+            --input data/demand_enriched_corrupted.parquet \
+            --baseline-cutoff 2026-01-16 \
+            --output validation_results.json \
+            --fail-on critical
+
+      - name: Write step summary
+        if: always()
+        working-directory: week3
+        run: |
+          python - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import json
+          import sys
+          from pathlib import Path
+
+          p = Path("validation_results.json")
+          if not p.exists():
+              print("## ⚠️ Data quality check did not produce results")
+              print("")
+              print("No `validation_results.json` was emitted by the validation step.")
+              print("Likely cause: the validation CLI errored or has not been implemented yet (Part 3).")
+              sys.exit(0)
+
+          try:
+              d = json.loads(p.read_text())
+          except json.JSONDecodeError as e:
+              print(f"## ⚠️ Could not parse validation_results.json: {e}")
+              sys.exit(0)
+
+          is_valid = d.get("is_valid")
+          icon = "✅" if is_valid else "❌"
+          verdict = "passed" if is_valid else "FAILED"
+
+          sev = d.get("issues_by_severity") or {}
+          sev_str = ", ".join(f"{n} {k}" for k, n in sev.items() if n) or "0"
+
+          print(f"## {icon} Data quality check {verdict}")
+          print("")
+          print(f"- **Input:** `{d.get('input', '?')}`")
+          print(f"- **Baseline cutoff:** {d.get('baseline_cutoff', '?')}")
+          baseline = d.get("baseline_rows")
+          evaluation = d.get("evaluation_rows")
+          if isinstance(baseline, int) and isinstance(evaluation, int):
+              print(f"- **Rows evaluated:** {evaluation:,} (vs {baseline:,} baseline)")
+          print(f"- **Issues:** {d.get('total_issues', 0)} ({sev_str})")
+          duration = d.get("duration_seconds")
+          if isinstance(duration, (int, float)):
+              print(f"- **Run time:** {duration:.2f}s")
+
+          issues = d.get("issues") or []
+          if issues:
+              print("")
+              print("### Issues")
+              print("")
+              print("| Severity | Type | Column | Description |")
+              print("|---|---|---|---|")
+              for i in issues:
+                  s = i.get("severity", "?")
+                  t = i.get("type", "?")
+                  c = i.get("column", "—")
+                  desc = (i.get("description") or "").replace("|", "\\|").replace("\n", " ")
+                  print(f"| {s} | {t} | {c} | {desc} |")
+          PY
 
       - name: Block deployment if validation fails
         if: failure()
