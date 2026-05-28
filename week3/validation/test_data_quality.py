@@ -6,6 +6,7 @@ Write tests that:
 2. Fail for corrupted data
 3. Test each issue you identified
 """
+
 import pytest
 import pandas as pd
 import numpy as np
@@ -17,14 +18,14 @@ import numpy as np
 @pytest.fixture
 def baseline_data():
     """Load clean baseline data."""
-    # TODO: Load from week3/data/demand_enriched_baseline.parquet
+    # TODO: Load your clean baseline dataframe.
     pass
 
 
 @pytest.fixture
 def corrupted_data():
     """Load corrupted data."""
-    # TODO: Load from week3/data/demand_enriched_corrupted.parquet
+    # TODO: Load your corrupted dataframe.
     pass
 
 
@@ -38,6 +39,7 @@ def validator(baseline_data):
 # ============================================================================
 # TEST STRUCTURE EXAMPLES
 # ============================================================================
+
 
 class TestBaselineData:
     """Tests that baseline data should pass validation."""
@@ -66,15 +68,16 @@ class TestDataQualityIssues:
         # TODO: Implement
         pass
 
-    def test_detect_issue_3(self, corrupted_data, validator):
-        """Should detect Issue 3 (TODO: describe your issue)."""
-        # TODO: Implement
-        pass
+    # It's recommended but optional to find all 4 issues:
+    # def test_detect_issue_3(self, corrupted_data, validator):
+    #     """Should detect Issue 3 (TODO: describe your issue)."""
+    #     # TODO: Implement
+    #     pass
 
-    def test_detect_issue_4(self, corrupted_data, validator):
-        """Should detect Issue 4 (TODO: describe your issue)."""
-        # TODO: Implement
-        pass
+    # def test_detect_issue_4(self, corrupted_data, validator):
+    #     """Should detect Issue 4 (TODO: describe your issue)."""
+    #     # TODO: Implement
+    #     pass
 
 
 class TestGracefulDegradation:

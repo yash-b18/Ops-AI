@@ -4,6 +4,7 @@ Data Quality Validation Framework Template
 This file is a starting point for your validation code.
 Modify or replace as needed based on the issues you identify.
 """
+
 import pandas as pd
 import numpy as np
 from typing import Dict, List
@@ -42,9 +43,9 @@ class DataQualityValidator:
         # etc.
 
         return {
-            'is_valid': len(self.issues) == 0,
-            'num_issues': len(self.issues),
-            'issues': self.issues,
+            "is_valid": len(self.issues) == 0,
+            "num_issues": len(self.issues),
+            "issues": self.issues,
         }
 
     def check_null_rates(self, df: pd.DataFrame):
@@ -86,21 +87,31 @@ class DataQualityValidator:
         # What types should they be?
         pass
 
-    def _add_issue(self, issue_type: str, severity: str, description: str, count: int = None, **details):
+    def _add_issue(
+        self,
+        issue_type: str,
+        severity: str,
+        description: str,
+        count: int = None,
+        **details
+    ):
         """Helper to add issue to list."""
         issue = {
-            'type': issue_type,
-            'severity': severity,  # 'critical', 'high', 'medium', 'low'
-            'description': description,
-            'count': count,
-            **details
+            "type": issue_type,
+            "severity": severity,  # 'critical', 'high', 'medium', 'low'
+            "description": description,
+            "count": count,
+            **details,
         }
         self.issues.append(issue)
 
 
 # Optional: Utility functions
 
-def compare_distributions(baseline: pd.Series, current: pd.Series, threshold: float = 2.0) -> bool:
+
+def compare_distributions(
+    baseline: pd.Series, current: pd.Series, threshold: float = 2.0
+) -> bool:
     """
     Compare distributions using standard deviations.
 
@@ -110,7 +121,9 @@ def compare_distributions(baseline: pd.Series, current: pd.Series, threshold: fl
     pass
 
 
-def detect_outliers(series: pd.Series, baseline_series: pd.Series = None, sigma: float = 3.0) -> pd.Series:
+def detect_outliers(
+    series: pd.Series, baseline_series: pd.Series = None, sigma: float = 3.0
+) -> pd.Series:
     """
     Detect outliers in a numeric series.
 

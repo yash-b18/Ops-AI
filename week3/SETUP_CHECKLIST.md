@@ -3,13 +3,8 @@
 ## Before Starting
 
 - [ ] Read READING.md (context on data quality)
-- [ ] Install dependencies: `pip install great_expectations pandas numpy pytest`
-- [ ] Set up Git LFS and pull data:
-  ```bash
-  git lfs install
-  git lfs pull
-  ls -lh week3/data/*.parquet  # Verify files are MB, not KB
-  ```
+- [ ] Install dependencies: `pip install pandas numpy pytest pyarrow`
+- [ ] Verify data files are downloaded: `ls -lh week3/data/*.parquet` (should show MB, not bytes)
 
 ## Part 1: Identify Issues
 
@@ -21,11 +16,9 @@
   - Data types
   - Unique values for categorical fields
   
-- [ ] Document 4+ distinct issues found:
+- [ ] Document at least 2 distinct issues found:
   - [ ] Issue 1: __________ (affected rows: ____)
   - [ ] Issue 2: __________ (affected rows: ____)
-  - [ ] Issue 3: __________ (affected rows: ____)
-  - [ ] Issue 4: __________ (affected rows: ____)
 
 - [ ] For each issue, note:
   - What is wrong (specific problem)
@@ -36,12 +29,16 @@
 ## Part 2: Build Validation
 
 - [ ] Create `week3/validation/check_data_quality.py`
-  - Write functions to detect each of your 4+ issues
+  - Write functions to detect each of your 2 or more issues
   - Return structured results (which rows/columns failed)
   
 - [ ] Test your validation against both datasets:
   - Baseline should pass (or mostly pass)
   - Corrupted should fail on your identified issues
+
+- [ ] Add a validation workflow:
+  - Open `.github/workflows/validate-data.yml`, choose your cron frequency, and update the run step to call your validation code
+  - Push and verify the workflow runs in GitHub Actions → Actions tab
 
 ## Part 3: Graceful Degradation
 
@@ -62,19 +59,17 @@
 
 - [ ] Run tests: `python -m pytest week3/validation/test_data_quality.py -v`
 
-## Part 5: Combined Report (3 pages max)
+## Part 5: Combined Report
 
-Write single report:
-- [ ] Page 1: Issues found (what, how many rows, why it matters)
-- [ ] Page 2: Validation approach + graceful degradation (how you fix each issue)
-- [ ] Page 3: Strategy (where validation runs, monitoring, trade-offs)
+Write a single report. Below is a suggested structure, but you are free to change this:
+- [ ] Part 1: Issues found (what, how many rows, why it matters)
+- [ ] Part 2: Validation approach + graceful degradation (how you fix each issue)
+- [ ] Part 3: Strategy (where validation runs, monitoring, trade-offs)
 
 ## Deliverables Checklist
 
 - [ ] `week3/validation/check_data_quality.py` - validation code
 - [ ] `week3/validation/test_data_quality.py` - tests
 - [ ] `week3/backend/data.py` - graceful degradation
-- [ ] `REPORT.md` or `REPORT.pdf` (3 pages max):
-  - Page 1: Issues identified
-  - Page 2: Validation approach + fallbacks
-  - Page 3: Strategy & trade-offs
+- [ ] `.github/workflows/validate-data.yml` - scheduled validation workflow
+- [ ] `REPORT.md` or `REPORT.pdf` with a logical structure and enough explanation of Issues identified, Validation approach + fallbacks, and Strategy & trade-offs

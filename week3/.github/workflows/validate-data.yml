@@ -14,9 +14,7 @@ jobs:
   validate:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-        with:
-          lfs: true
+      - uses: actions/checkout@v4
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -32,18 +30,11 @@ jobs:
         run: |
           cd week3
           # TODO: Implement this
-          # - Load baseline and current data
+          # - Load and split the corrupted parquet (pre/post Jan 16)
           # - Run your validation checks
           # - Report findings
           # - Exit with error if validation fails
           python3 -m validation.check_data_quality
-
-      - name: Upload validation results
-        if: always()
-        uses: actions/upload-artifact@v3
-        with:
-          name: validation-report
-          path: week3/validation-results.json
 
       - name: Block deployment if validation fails
         if: failure()

@@ -1,3 +1,8 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:14958db35955fe38eb4fb274c7397bcede1b02f9007608673a3a562bdd549526
-size 123
+fastapi==0.111.0
+uvicorn[standard]==0.30.1
+pandas==2.2.2
+pyarrow==16.1.0
+numpy==1.26.4
+lightgbm>=4.5.0
+scikit-learn==1.4.2
+pytest

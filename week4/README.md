@@ -4,7 +4,7 @@
 
 1. Read [READING.md](READING.md) - data drift vs concept drift, statistical tests, retraining strategies
 2. Review [BASELINE_METRICS.md](BASELINE_METRICS.md) - reference values from healthy system (Jan 1-15, 2026)
-3. Install dependencies: `pip install pandas scipy scikit-learn numpy`
+3. Install dependencies: `pip install pandas pyarrow scipy scikit-learn numpy`
 
 ## Assignment
 
