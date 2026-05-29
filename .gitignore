@@ -34,9 +34,8 @@ Thumbs.db
 *.log
 key.json
 
-# Week 3 working notes & EDA script (local only)
+# Week 3 working notes (local only)
 week3/NOTES.md
-week3/explore.py
 
 # Part 5: large data files pulled from GCS for local module-import test
 # (the production container fetches these from GCS at runtime; never commit them to git)
