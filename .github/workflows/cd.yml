@@ -23,6 +23,11 @@ env:
 jobs:
   # Build, push, and deploy the application
   deploy:
+    # DISABLED after Week 3 submission: the GKE cluster and Artifact Registry
+    # were torn down for cost cleanup, so the deploy steps fail. To re-enable,
+    # recreate the cluster + AR repo (see week2 SETUP_CHECKLIST.md), then remove
+    # the `if: false` line below.
+    if: false
     runs-on: ubuntu-latest
     permissions:
       contents: read
