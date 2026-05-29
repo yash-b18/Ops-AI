@@ -34,13 +34,6 @@ Thumbs.db
 *.log
 key.json
 
-# Week 3 working notes (local only)
-week3/NOTES.md
-
 # Part 5: large data files pulled from GCS for local module-import test
 # (the production container fetches these from GCS at runtime; never commit them to git)
 week2/data/processed/
-
-# Part 7: REPORT.md is the local-only graded deliverable.
-# User submits via a separate mechanism (not via `git push`).
-week3/REPORT.md
