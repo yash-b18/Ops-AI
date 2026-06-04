@@ -2,7 +2,7 @@ name: Drift Monitoring
 
 on:
   schedule:
-    - cron: '0 * * * *'  # TODO: Choose your frequency (hourly? daily? weekly?)
+    - cron: '0 9 * * *'  # Daily 09:00 UTC — ~24h ground-truth lag makes sub-daily checks pointless; daily stays actionable and low-cost
   push:
     branches: [main]
     paths:
@@ -13,10 +13,11 @@ on:
 jobs:
   monitor:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read     # checkout
+      issues: write      # the alert step opens a drift-alert issue via github-script
     steps:
       - uses: actions/checkout@v3
-        with:
-          lfs: true
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -31,21 +32,12 @@ jobs:
         id: metrics
         run: |
           cd week4
-          # TODO: Implement metric computation
-          # - Load baseline and current data
-          # - Compute 8+ metrics (nulls, distributions, PSI, KS test, etc.)
-          # - Report metrics and thresholds
-          # - Determine if any alerts should fire
           python3 scripts/compute_metrics.py
 
       - name: Detect drift patterns
         id: drift
         run: |
           cd week4
-          # TODO: Implement drift detection
-          # - Run statistical tests (KS, PSI, chi-square)
-          # - Identify 4+ drift patterns
-          # - Document evidence for each pattern
           python3 scripts/detect_drift.py
 
       - name: Upload metrics
@@ -56,18 +48,20 @@ jobs:
           path: week4/metrics-*.json
 
       - name: Create alert if drift detected
-        if: failure()
+        if: steps.metrics.outputs.alert == 'true' || steps.drift.outputs.drift == 'true'
         uses: actions/github-script@v6
         with:
           script: |
-            github.rest.issues.create({
+            const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+            const date = new Date().toISOString().slice(0, 10);
+            await github.rest.issues.create({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              title: 'Drift detected in monitoring',
-              body: 'Monitoring workflow detected data or concept drift. Check logs for details.',
+              title: `Drift alert — critical thresholds breached (${date})`,
+              body: `The scheduled drift-monitoring run breached a **critical** metric or drift threshold.\n\nSee the run logs and the \`metrics-*.json\` artifact for evidence:\n${runUrl}`,
               labels: ['drift-alert']
-            })
+            });
 
       - name: Monitoring complete
         if: success()
-        run: echo "Drift monitoring complete - no issues detected"
+        run: echo "Drift monitoring run complete (an issue is opened only on critical breaches; see the run summary and metrics artifact)."

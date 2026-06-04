@@ -37,3 +37,6 @@ key.json
 # Part 5: large data files pulled from GCS for local module-import test
 # (the production container fetches these from GCS at runtime; never commit them to git)
 week2/data/processed/
+
+# Week 4: generated metrics report (regenerated each run, uploaded as a CI artifact)
+week4/metrics-*.json
