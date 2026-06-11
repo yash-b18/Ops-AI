@@ -271,10 +271,12 @@ class Agent:
                 "https://aistudio.google.com/app/apikey"
             )
 
-        # Gemini client. Use the free-tier "flash" model instead of the paid
-        # "pro" model named in the README to keep per-query cost near zero.
+        # Gemini client. Use a free-tier "flash" model instead of the paid "pro"
+        # model named in the README to keep per-query cost near zero. Flash-Lite
+        # is used because gemini-2.5-flash's free tier is capped at only ~20
+        # requests/day, which a session of testing exhausts quickly.
         self.client = genai.Client(api_key=self.api_key)
-        self.model = "gemini-2.5-flash"
+        self.model = "gemini-2.5-flash-lite"
 
         # Register the tools the agent can call, keyed by name.
         self.tools = {
@@ -493,14 +495,14 @@ class Agent:
     def _estimate_query_cost(self, input_tokens: int, output_tokens: int) -> float:
         """Calculate cost based on tokens.
 
-        Gemini 2.5 Flash pricing (paid tier; the free tier used here is $0,
+        Gemini 2.5 Flash-Lite pricing (paid tier; the free tier used here is $0,
         so this estimates what the same usage would cost at scale):
-        - Input:  $0.30 per 1M tokens
-        - Output: $2.50 per 1M tokens (includes "thinking" tokens, which
+        - Input:  $0.10 per 1M tokens
+        - Output: $0.40 per 1M tokens (includes any "thinking" tokens, which
           _token_counts() folds into output via total - input)
         """
-        input_cost = (input_tokens / 1_000_000) * 0.30
-        output_cost = (output_tokens / 1_000_000) * 2.50
+        input_cost = (input_tokens / 1_000_000) * 0.10
+        output_cost = (output_tokens / 1_000_000) * 0.40
         return input_cost + output_cost
 
     def get_metrics(self) -> Dict[str, Any]:
