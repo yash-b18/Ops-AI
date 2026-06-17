@@ -29,10 +29,10 @@ class AccessController:
     # Regex fragment matching a single "value" token to redact (money, SSN,
     # number/percentage, or a quoted string). Uses only non-capturing groups.
     _VALUE = (
-        r"(?:\$[\d,]+(?:\.\d{1,2})?"   # money: $145,000 / $1,234.50
-        r"|\d{3}-\d{2}-\d{4}"          # SSN: 123-45-6789
-        r"|[\d,]+(?:\.\d+)?%?"         # plain number or percentage
-        r'|"[^"]+")'                    # quoted string
+        r"(?:\$\d+(?:,\d{3})*(?:\.\d{1,2})?"   # money: $145,000 / $1,234.50
+        r"|\d{3}-\d{2}-\d{4}"                  # SSN: 123-45-6789
+        r"|\d+(?:,\d{3})*(?:\.\d+)?%?"         # plain number or percentage
+        r'|"[^"]+")'                            # quoted string
     )
 
     # Natural-language terms (regex fragments) that may introduce each field.
