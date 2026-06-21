@@ -40,3 +40,6 @@ week2/data/processed/
 
 # Week 4: generated metrics report (regenerated each run, uploaded as a CI artifact)
 week4/metrics-*.json
+
+# Week 6: local report material (demo output, screenshots) — never pushed
+week6/Report/
